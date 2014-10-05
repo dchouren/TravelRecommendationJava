@@ -474,8 +474,8 @@ public class MCMatrix
 		/**
 		 * one shot query with cities passed all at once through args[0]
 		 */
-		SelectedCities sample = new SelectedCities();
-		String citiesArgs ="Beijing, China\nNew York City, NY, USA";
+/*		SelectedCities sample = new SelectedCities();
+		String citiesArgs = args[0];
 		sample.initSelectedCitiesFromArgs(mcMatrix, citiesArgs);
 		
 //		float searchBeginTime = System.nanoTime();
@@ -485,11 +485,11 @@ public class MCMatrix
 		recommender.makeRecommendations(sampleCityVector, 20);
 		List<String> recommendedCities = recommender.getRecommendations();
 		recommender.printRecommendationNames();
-		
+		*/
 //		System.out.println("here");
 		
 		
-/*		String inputString = "";
+		String inputString = "";
 		while (!inputString.equals("END ALL")) {
 			
 //			System.out.println();
@@ -500,24 +500,24 @@ public class MCMatrix
 			SelectedCities sample = new SelectedCities();
 			sample.initSelectedCities(mcMatrix);
 			
-			float searchBeginTime = System.nanoTime();
+//			float searchBeginTime = System.nanoTime();
 			double[] sampleCityVector = sample.getSampleCityVector();
 //			List<String> sampleCities = sample.getSampleCities();
 			
 			
 			recommender.makeRecommendations(sampleCityVector, 20);
-			float searchEndTime = System.nanoTime();
-			float totalSearchTime = (searchEndTime - searchBeginTime) 
-										/ SECONDS_TO_NANO;*/
-			
-			/*System.out.print("\nSimilar members:\n");
-			recommender.printSimilarMembers();
-			System.out.println();
-			System.out.println("Recommended cities:");*/
+//			float searchEndTime = System.nanoTime();
+//			float totalSearchTime = (searchEndTime - searchBeginTime) 
+//										/ SECONDS_TO_NANO;
+//			
+//			System.out.print("\nSimilar members:\n");
+//			recommender.printSimilarMembers();
+//			System.out.println();
+//			System.out.println("Recommended cities:");
 //			List<String> recommendedCities = recommender.getRecommendations();
 			
-			/*
-			recommender.printRecommendations();*/
+			
+			recommender.printRecommendationNames();
 			
 //			System.out.println();
 //			System.out.println("Search took " + totalSearchTime + " seconds.");
@@ -639,7 +639,7 @@ public class MCMatrix
 				System.out.print("Next Command: ");
 				inputString = br.readLine();
 			}*/
-//		}
+		}
 		
 //		System.out.println();
 //		System.out.println("Terminated.");
