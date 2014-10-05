@@ -34,6 +34,20 @@ public class SelectedCities {
 		this.sampleCityVector = fillCityVector();
 	}
 	
+	public void initSelectedCitiesFromArgs(MCMatrix mcMatrix, String citiesArgs) throws IOException
+	{
+		this.mcMatrix = mcMatrix;
+		this.cities = findCitiesFromArgs(citiesArgs);
+		this.sampleCityVector = fillCityVector();
+	}
+	
+	
+	private List<String> parseArgs(String citiesArgs)
+	{
+		ArrayList<String> inputCities = new ArrayList<String>(Arrays.asList(citiesArgs.split("\n")));
+		return inputCities;
+	}
+	
 	
 	/**
 	 * Return user-inputed list of cities. 
@@ -42,14 +56,14 @@ public class SelectedCities {
 	 */
 	private List<String> findCities() throws IOException
 	{
-		ArrayList<String> inputCities = new ArrayList<String>();
+		List<String> inputCities = new ArrayList<String>();
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		
 		String inputString = "";
 		while (!inputString.equals("PREDICT")) {
 			
-			System.out.print("Enter next city: ");
+//			System.out.print("Enter next city: ");
 			
 	        inputString = br.readLine();
 	        
@@ -61,26 +75,17 @@ public class SelectedCities {
 			
 //			System.out.println(inputString);
 		}
+		
 		return inputCities;
 		
-//		return new ArrayList<String>(
-//				Arrays.asList( 
-//				"West Yellowstone, MT, USA",
-//				"Gatlinburg, TN, USA",
-//				"Yosemite Village, CA, USA",
-//				"Denali National Park and Preserve, AK, USA",
-//				"Crater Lake National Park, OR, USA",
-//				"Kakadu National Park, Australia",
-//				"Lake Manyara National Park, Tanzania",
-//				"Queen Elizabeth National Park, Uganda",
-//				"Dartmoor National Park, UK",
-//				"Uluru-Kata Tjuta National Park, Australia",
-//				"Tongariro National Park, New Zealand",
-//				"Chitwan National Park, Nepal",
-//				"Lauca National Park, Chile",
-//				"Serengeti National Park, Tanzania",
-//				"Sequoia and Kings Canyon National Park, CA, USA"
-//				));
+	}
+	
+	
+	private List<String> findCitiesFromArgs(String citiesArgs)
+	{
+		List<String> inputCities = new ArrayList<String>();
+		inputCities = parseArgs(citiesArgs);
+		return inputCities;
 	}
 	
 	
@@ -102,7 +107,7 @@ public class SelectedCities {
 			
 			double thisIdf = cityIdf.get(city);
 			sampleCityVector[index] = thisIdf;
-			System.out.println(thisIdf);
+//			System.out.println(thisIdf);
 			
 		}
 		

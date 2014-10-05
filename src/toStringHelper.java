@@ -12,7 +12,7 @@ public class toStringHelper {
 	 * @param list
 	 * @return
 	 */
-	public static String toString(List<String> list) 
+	public static String toStringCount(List<String> list) 
 	{
 		String output = "";
 		String delim = "\t";
@@ -25,6 +25,19 @@ public class toStringHelper {
 		
 		return output;
 	}
+	
+	public static String toString(List<String> list) 
+	{
+		String output = "";
+		String delim = "";
+		for (String token : list) {
+		    output += delim += token;
+		    delim = "\n";
+		}
+		
+		return output;
+	}
+	
 	
 	/**
 	 * Return comma separated List<String>.

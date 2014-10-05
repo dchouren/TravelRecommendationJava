@@ -450,13 +450,14 @@ public class MCMatrix
 		
 		float endTime = System.nanoTime();
 		float totalTime = (endTime - startTime) / SECONDS_TO_NANO;
-		System.out.println("\nFinished parsing " + mcMatrix.memberSets.size() 
-				+ " unique cities and " + mcMatrix.citySets.size() 
-				+ " members in " + totalTime + " seconds.\n");
+//		System.out.println("\nFinished parsing " + mcMatrix.memberSets.size() 
+//				+ " unique cities and " + mcMatrix.citySets.size() 
+//				+ " members in " + totalTime + " seconds.\n");
 		
 		
 		// write all cities to a file
 		FileUtil.writeKeys(mcMatrix.getCityKeyIndexMap(), "cities.txt");
+		
 		
 		
 		/**
@@ -468,46 +469,76 @@ public class MCMatrix
 		Recommender recommender = new Recommender(mcMatrix);
 		recommender.initRecommender("jaccard", "top std", 20, 2.0, 3);
 		
-		String inputString = "";
+		
+		
+		/**
+		 * one shot query with cities passed all at once through args[0]
+		 */
+		SelectedCities sample = new SelectedCities();
+		String citiesArgs ="Beijing, China\nNew York City, NY, USA";
+		sample.initSelectedCitiesFromArgs(mcMatrix, citiesArgs);
+		
+//		float searchBeginTime = System.nanoTime();
+		double[] sampleCityVector = sample.getSampleCityVector();
+		List<String> sampleCities = sample.getSampleCities();
+		
+		recommender.makeRecommendations(sampleCityVector, 20);
+		List<String> recommendedCities = recommender.getRecommendations();
+		recommender.printRecommendationNames();
+		
+//		System.out.println("here");
+		
+		
+/*		String inputString = "";
 		while (!inputString.equals("END ALL")) {
 			
-			System.out.println();
-			System.out.println("-----------------------");
+//			System.out.println();
+//			System.out.println("-----------------------");
 			
+			
+
 			SelectedCities sample = new SelectedCities();
 			sample.initSelectedCities(mcMatrix);
 			
 			float searchBeginTime = System.nanoTime();
 			double[] sampleCityVector = sample.getSampleCityVector();
-			List<String> sampleCities = sample.getSampleCities();
+//			List<String> sampleCities = sample.getSampleCities();
 			
 			
 			recommender.makeRecommendations(sampleCityVector, 20);
-//			Map<String, Double> sortedMemberStats = 
-//					recommender.getSortedStats();
 			float searchEndTime = System.nanoTime();
 			float totalSearchTime = (searchEndTime - searchBeginTime) 
-										/ SECONDS_TO_NANO;
+										/ SECONDS_TO_NANO;*/
 			
-			System.out.print("\nSimilar members:\n");
+			/*System.out.print("\nSimilar members:\n");
 			recommender.printSimilarMembers();
 			System.out.println();
-			System.out.println("Recommended cities:");
-			List<String> recommendedCities = recommender.getRecommendations();
-			recommender.printRecommendations();
-			System.out.println();
-			System.out.println("Search took " + totalSearchTime + " seconds.");
+			System.out.println("Recommended cities:");*/
+//			List<String> recommendedCities = recommender.getRecommendations();
 			
-			System.out.print("\nNext Command: ");
-			inputString = br.readLine();
+			/*
+			recommender.printRecommendations();*/
 			
-			List<String> similarMembers = recommender.getSimilarMembers();
-			Map<String, String> memberStdMap = recommender.getMemberStdMap();
-			Map<String, Double> memberWeightMap = 
-					recommender.getMemberWeightMap();
+//			System.out.println();
+//			System.out.println("Search took " + totalSearchTime + " seconds.");
+//			
+//			System.out.print("\nNext Command: ");
+			
+			
+			/*
+			inputString = br.readLine();*/
+//			
+//			List<String> similarMembers = recommender.getSimilarMembers();
+//			Map<String, String> memberStdMap = recommender.getMemberStdMap();
+//			Map<String, Double> memberWeightMap = 
+//					recommender.getMemberWeightMap();
 
 			
-			while (!inputString.equals("NEXT SEARCH") 
+			
+			/**
+			 * get information about this query
+			 */
+			/*while (!inputString.equals("NEXT SEARCH") 
 					&& !inputString.equals("END ALL")) {
 				List<String> memberSets = mcMatrix.memberSets.get(inputString);
 				List<String> citySets = mcMatrix.citySets.get(inputString);
@@ -607,62 +638,11 @@ public class MCMatrix
 				System.out.println("**********************");
 				System.out.print("Next Command: ");
 				inputString = br.readLine();
-			}
-		}
-		
-		System.out.println();
-		System.out.println("Terminated.");
-		
-		
-//		VectorSimilarity similarMembers = new VectorSimilarity(mcMatrix,
-//				sampleCityVector, "jaccard");
-//		similarMembers.initVectorSimilarity();
-//		
-//		List<double[]> topMembers = similarMembers.topStd(-10);
-//		
-//		for (double[] stats : topMembers) {
-//			for (int i = 0; i < stats.length; i++) {
-//				System.out.print(stats[i] + ", " );
-//			}
-//			System.out.println();
+			}*/
 //		}
 		
-//		System.out.println(similarities.size());
-//		System.out.println(similarities.get("taiwanDIY").get(0));
-//		System.out.println(similarities.get("nuttyazn").get(0));
-//		System.out.println(similarities.get("TaipeiAlive").get(0));
-//		System.out.println(similarities.get("Poorjar").get(0));
-//		
 //		System.out.println();
-//		for (int i = 0; i < mcMatrix.matrix.length; i++) {
-//			for (int j = 0; j < mcMatrix.matrix[i].length; j++) {
-//				System.out.print(mcMatrix.matrix[i][j] + ", ");	
-//			}
-//			System.out.println();
-//		}
-//		System.out.println();
-		/**
-		 * quick testing
-		 */
-//		String testMember = mcMatrix.memberIndexKeyMap.get(0);
-//		Integer memberIndex = mcMatrix.memberKeyIndexMap.get(testMember);
-//		if (memberIndex != 0)
-//			System.out.println("error: member index key mapping");
-//		
-//		System.out.println(mcMatrix.memberIndexKeyMap.get(0));
-//		System.out.println(mcMatrix.memberIndexKeyMap.get(1));
-//		System.out.println(mcMatrix.memberIndexKeyMap.get(2));
-//		System.out.println(mcMatrix.memberIndexKeyMap.get(3));
-//		System.out.println(mcMatrix.memberIndexKeyMap.get(4));
-//		System.out.println(mcMatrix.cityIndexKeyMap.get(0));
-//		System.out.println(mcMatrix.cityIndexKeyMap.get(1));
-//		System.out.println(mcMatrix.cityIndexKeyMap.get(2));
-//		System.out.println(mcMatrix.cityIndexKeyMap.get(3));
-//		System.out.println(mcMatrix.cityIndexKeyMap.get(4));
-//		System.out.println(mcMatrix.cityIndexKeyMap.get(5));
-//		System.out.println(mcMatrix.cityIndexKeyMap.get(14));
-//		System.out.println(mcMatrix.citySets.get("taiwanDIY"));
-//		System.out.println(mcMatrix.memberKeyIndexMap.get("taiwanDIY"));
+//		System.out.println("Terminated.");
 
 	
 	}

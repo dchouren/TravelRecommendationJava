@@ -353,7 +353,13 @@ public class Recommender
 	 */
 	public void printRecommendations()
 	{
-		System.out.println(toStringHelper.toString(this.recommendationWeights));
+		System.out.println(toStringHelper.toStringCount(this.recommendationWeights));
+	}
+	
+	
+	public void printRecommendationNames()
+	{
+		System.out.println(toStringHelper.toString(this.recommendations));
 	}
 	
 	/**
