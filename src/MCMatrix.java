@@ -1,9 +1,13 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -126,6 +130,8 @@ public class MCMatrix
 	{
 		List<String> cities = null;
 		
+//		float timerStart = System.nanoTime();
+
 		Path currentRelativePath = Paths.get("");
 		String s = currentRelativePath.toAbsolutePath().toString();
 		String memberHtml = FileUtil.readFile(s + "/memberPages/" + member 
@@ -159,13 +165,7 @@ public class MCMatrix
 			if (!scriptString.startsWith("DUST_GLOBAL")) {
 				continue;
 			}
-
-			//			PrintWriter writer = new PrintWriter("test.txt", "UTF-8");
-			//			writer.println(scriptString);
-			//			writer.close();
 			
-//			Pattern mapPin = Pattern.compile(
-//					"(been|fave|want)\"\\],\"name\":\"");
 			String[] splitJson = memberPage.toString().split(
 					"(been|fave)\"\\],\"name\":\"");
 			
@@ -180,18 +180,22 @@ public class MCMatrix
 			
 			
 			cities = new ArrayList<String>(Arrays.asList(splitJson));
-
+			
+//			System.out.println(cities);
+			
+			
 			// format city entries
 			ListIterator<String> i = cities.listIterator(1);
 			while (i.hasNext()) {
 				String cityEntry = i.next();
 				cityEntry = cityEntry.substring(0, cityEntry.indexOf('\"'));
 				i.set(cityEntry);
+//				System.out.println(cityEntry);
 
 
 				// update memberSets
 				if (this.memberSets != null && 
-						this.memberSets.get(cityEntry) != null) 
+							this.memberSets.get(cityEntry) != null) 
 				{
 					this.memberSets.get(cityEntry).add(member);
 				}
@@ -205,16 +209,91 @@ public class MCMatrix
 			// first entry is garbage javascript stuff
 			cities.remove(0);  
 		}
-
+		
+		/** write members with their cities to a text file */
+		PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("memberCities.txt", true)));
+		writer.println(member);
+		
+		for (String city:cities) {
+			writer.write(city + "|");
+		}
+		writer.write("\n");
+		writer.close();
+//		System.out.println(cities);
+		
 		// update citySets
 		if (cities != null) {
 //			System.out.println(member);
 			this.citySets.put(member, cities);
 		}
+//		float timerEnd = System.nanoTime();
+//		System.out.println((timerEnd - timerStart) / SECONDS_TO_NANO);
 
 		return cities;
 	}
 
+	/** 
+	 * Load member city information in one shot (instead of cycling through each member page.
+	 * XXX: dangerous with the jar, not sure where to keep memberCities.txt, right now stored separately
+	 * @throws IOException
+	 */
+	private void oneShotRead() throws IOException 
+	{
+		Path currentRelativePath = Paths.get("");
+		String s = currentRelativePath.toAbsolutePath().toString();
+		BufferedReader br = new BufferedReader(new FileReader(s + "/memberCities.txt"));
+		
+		List<String> cities = null;
+		
+		boolean isMember = true;
+		String line = br.readLine();
+		String member = "";
+		while (line != null) {
+			if (isMember) {
+				member = line; 
+			}
+			else {
+//				System.out.println(line);
+				cities = new ArrayList<String>(Arrays.asList(line.split("\\|")));
+				this.citySets.put(member, cities);
+				
+//				System.out.println(cities.size());
+				
+				// format city entries
+				ListIterator<String> i = cities.listIterator();
+				while (i.hasNext()) {
+					String cityEntry = i.next();
+					i.set(cityEntry);
+//					System.out.println(cityEntry);
+
+
+					// update memberSets
+					if (this.memberSets != null && 
+								this.memberSets.get(cityEntry) != null) 
+					{
+						this.memberSets.get(cityEntry).add(member);
+					}
+					else {
+						List<String> memberSet = new ArrayList<String>(
+								Arrays.asList(member)); 
+						this.memberSets.put(cityEntry, memberSet);
+					}
+				}
+			}
+			
+			line = br.readLine();
+			isMember = !isMember;
+		}
+		br.close();
+
+//		if (cities != null) {
+////			System.out.println(member);
+//			this.citySets.put(member, cities);
+//		}
+//		for (int j = 0; j < experts.size(); j++) {
+//			String thisExpert = experts.get(j);
+//		}
+	}
 
 
 	/**
@@ -226,18 +305,34 @@ public class MCMatrix
 	 */
 	private void readAllCities() throws IOException, ParseException
 	{
-		List<String> experts = FileUtil.listFileBasenames("memberPages/");
+		/**
+		 * old way of reading cities for members one by one
+		 */
+		/*List<String> experts = FileUtil.listFileBasenames("memberPages/");
 		if (experts == null)
 			return;
 		
-//		List<String> experts = TripAdvisorScraper.scrapeAllMembers();
 
 		for (int j = 0; j < experts.size(); j++) {
 			String thisExpert = experts.get(j);
 
+
+			float timerStart = System.nanoTime();
+			
 			// does all the dirty work of creating sets
+			// reads members one by one
 			readVisitedCities(thisExpert);
+
+			float timerEnd = System.nanoTime();
+			System.out.println((timerEnd - timerStart) / SECONDS_TO_NANO);
 		}
+		*/
+
+		/**
+		 * new way that takes advantage of members and cities stored in memberCities.txt
+		 */
+		oneShotRead();
+
 	}
 
 	
@@ -443,10 +538,26 @@ public class MCMatrix
 		float startTime = System.nanoTime();
 
 		MCMatrix mcMatrix = new MCMatrix();
+		float timerStart = System.nanoTime();
 		mcMatrix.readAllCities();
+		float timerEnd = System.nanoTime();
+//		System.out.println((timerEnd - timerStart) / SECONDS_TO_NANO);
+		
+		timerStart = System.nanoTime();
 		mcMatrix.initMatrix();
+		timerEnd = System.nanoTime();
+//		System.out.println((timerEnd - timerStart) / SECONDS_TO_NANO);
+		
+		timerStart = System.nanoTime();
 		mcMatrix.fillMatrix();
+		timerEnd = System.nanoTime();
+//		System.out.println((timerEnd - timerStart) / SECONDS_TO_NANO);
+		
+		timerStart = System.nanoTime();
 		mcMatrix.tfIdfMatrix();
+		timerEnd = System.nanoTime();
+//		System.out.println((timerEnd - timerStart) / SECONDS_TO_NANO);
+		
 		
 		float endTime = System.nanoTime();
 		float totalTime = (endTime - startTime) / SECONDS_TO_NANO;
@@ -456,7 +567,7 @@ public class MCMatrix
 		
 		
 		// write all cities to a file
-		FileUtil.writeKeys(mcMatrix.getCityKeyIndexMap(), "cities.txt");
+//		FileUtil.writeKeys(mcMatrix.getCityKeyIndexMap(), "cities.txt");
 		
 		
 		
@@ -484,11 +595,17 @@ public class MCMatrix
 		
 		recommender.makeRecommendations(sampleCityVector, 20);
 		List<String> recommendedCities = recommender.getRecommendations();
-		recommender.printRecommendationNames();
-		*/
+		recommender.printRecommendationNames();*/
+		
 //		System.out.println("here");
+		/**
+		 * end one shot
+		 */
 		
 		
+		/**
+		 * cyclic querying
+		 */
 		String inputString = "";
 		while (!inputString.equals("END ALL")) {
 			
@@ -525,8 +642,8 @@ public class MCMatrix
 //			System.out.print("\nNext Command: ");
 			
 			
-			/*
-			inputString = br.readLine();*/
+			
+			inputString = br.readLine();
 //			
 //			List<String> similarMembers = recommender.getSimilarMembers();
 //			Map<String, String> memberStdMap = recommender.getMemberStdMap();
@@ -537,8 +654,8 @@ public class MCMatrix
 			
 			/**
 			 * get information about this query
-			 */
-			/*while (!inputString.equals("NEXT SEARCH") 
+			 *//*
+			while (!inputString.equals("NEXT SEARCH") 
 					&& !inputString.equals("END ALL")) {
 				List<String> memberSets = mcMatrix.memberSets.get(inputString);
 				List<String> citySets = mcMatrix.citySets.get(inputString);
